@@ -12,7 +12,7 @@
 | 항목 | 네이버 지도 (NCP Maps) | 네이버 검색 (지역 검색) | 구글 Places | 한국관광공사 Tour API |
 |---|---|---|---|---|
 | 무료 사용 범위 | 대표 계정에만 무료 이용량 제공 (2023년 1월부터). 대표 계정이 아니면 처음부터 과금. 구체적 무료 수치는 공식 문서 확인 필요 | 무료로 사용 가능한 것으로 알려져 있으나 공식 문서 확인 필요 | 2025년 3월부터 기존 월 $200 크레딧 대신 상품(SKU)별 무료 사용량으로 변경 (제3자 자료). 구간별로 월 1,000 / 5,000 / 10,000건 수준이라고 하나, Place 관련 상품별 수치는 공식 문서 확인 필요 | 무료 (공공데이터포털에서 인증키 발급) |
-| 하루 또는 월 호출 한도 | 콘솔에서 일별/월별 이용량 상한선을 직접 설정 가능. 기본 한도 수치는 공식 문서 확인 필요 | 하루 25,000회 (제3자 자료). 공식 문서 확인 필요 | 상품(SKU)별 월 무료 사용량 기준. 하루 한도는 공식 문서 확인 필요 | 개발계정 하루 1,000건. 운영계정은 활용사례 등록 후 심의를 거쳐 트래픽 증가 신청 가능 |
+| 하루 또는 월 호출 한도 | 콘솔에서 일별/월별 이용량 상한선을 직접 설정 가능. 기본 한도 수치는 공식 문서 확인 필요 | 하루 25,000회 (공식 문서 확인됨). 지역 검색은 한 번에 1~5개 결과만 가져올 수 있음 | 상품(SKU)별 월 무료 사용량 기준. 하루 한도는 공식 문서 확인 필요 | 개발계정 하루 1,000건. 운영계정은 활용사례 등록 후 심의를 거쳐 트래픽 증가 신청 가능 |
 | 받은 데이터 저장(캐시) 가능 여부와 기간 | 공식 문서 확인 필요 | 공식 문서 확인 필요. 개정 약관 보도(블로그)에 따르면 "앱에서 검색 결과를 그대로 보여주는 목적"으로만 쓰도록 제한하고 자동 수집·AI 학습 등을 금지한다고 함. 지역 검색 결과를 DB에 쌓는 것은 **하지 않는 쪽이 안전** | 장소 ID(place_id)는 기간 제한 없이 저장 가능 (구글 정책에 명시). 위도·경도 30일 제한은 Places에 적용되는지 공식 확인 안 됨. 그 외 장소 정보는 공식 문서 확인 필요 | 공식 문서 확인 필요 (공공데이터포털 각 API 페이지의 "이용허락범위") |
 | 출처 표시 의무 | 공식 문서 확인 필요 | 공식 문서 확인 필요 | 구글 정책상 표시 의무가 있음 (지도 위에 쓰지 않을 때의 표기 방식 포함). 구체적 문구는 공식 문서 확인 필요 | 공식 문서 확인 필요 (이용허락범위 항목이 검색 결과에서 비어 있었음) |
 | 초과 시 요금 | 무료 이용량 초과분은 과금. 단가는 공식 문서 확인 필요 | 한도 초과 시 호출이 막히는지 과금되는지 공식 문서 확인 필요 | 무료 사용량 초과분은 상품별 단가로 과금. 단가는 공식 문서 확인 필요 | 한도 초과 시 호출 제한 (요금 없음). 정확한 동작은 공식 문서 확인 필요 |
@@ -24,13 +24,19 @@
 3. **네이버 검색 결과는 저장하지 않고 화면에 그대로 보여주는 용도**로만 쓰는 쪽이 안전합니다. CLAUDE.md의 "같은 요청은 캐시" 방침과 충돌할 수 있어, 캐시 기간은 약관 확인 후 정해야 합니다.
 4. **Tour API는 개발계정(하루 1,000건)으로 시작**하고, 서비스 공개 전에 활용사례 등록 → 운영계정 심의 신청이 필요합니다.
 5. 4개 모두 **출처 표시 방법을 확인한 뒤 화면 하단에 표기 자리**를 만들어 두세요.
+6. **네이버 검색은 NAVER API HUB 방식으로 호출**합니다.
+   - 호출 주소: https://naverapihub.apigw.ntruss.com/search/v1/local
+   - 인증 헤더: `X-NCP-APIGW-API-KEY-ID`, `X-NCP-APIGW-API-KEY` (개발자센터의 `X-Naver-Client-Id`, `X-Naver-Client-Secret` 방식은 쓰지 않음)
+   - 한 번에 1~5개 결과만 가져올 수 있어서, 장소 목록의 뼈대는 한국관광공사 데이터로 잡습니다.
+   - 개발자센터(openapi.naver.com)는 신규 등록이 막혀 있고 2027-06-30에 지원 종료 예정이라고 합니다. (제3자 자료 기준이라 공식 공지 확인 필요)
+   - 저장 가능 여부와 출처 표시 의무는 여전히 "공식 문서 확인 필요"입니다.
 
 ## 확인할 공식 문서 링크
 
 | API | 확인할 곳 |
 |---|---|
 | 네이버 지도 (NCP Maps) | 사용 안내: https://guide.ncloud-docs.com/docs/maps-overview <br> 요금: https://www.ncloud.com/product/applicationService/maps <br> 기술 사양: https://guide.ncloud-docs.com/docs/maps-spec |
-| 네이버 검색 (지역) | API 설명: https://developers.naver.com/docs/serviceapi/search/local/local.md <br> 이용약관: https://developers.naver.com/products/terms/ <br> 일일 한도는 위 API 설명의 "호출 한도" 항목 |
+| 네이버 검색 (지역) | 호출 방식은 NAVER API HUB 기준 (위 6번). 아래 개발자센터 문서는 옛 방식이라 **참고용** <br> API 설명: https://developers.naver.com/docs/serviceapi/search/local/local.md <br> 이용약관: https://developers.naver.com/products/terms/ |
 | 구글 Places | 요금/무료 사용량: https://developers.google.com/maps/billing-and-pricing/pricing <br> 정책·출처 표기: https://developers.google.com/maps/documentation/places/web-service/policies <br> 서비스별 약관(캐시): https://cloud.google.com/maps-platform/terms/maps-service-terms |
 | 한국관광공사 Tour API | 공공데이터포털: https://www.data.go.kr (검색창에 "한국관광공사 국문 관광정보 서비스") — 각 API 페이지의 "이용허락범위", "트래픽" 항목 <br> 한국관광공사 TourAPI: https://api.visitkorea.or.kr |
 
