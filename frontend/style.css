@@ -93,6 +93,40 @@ body {
 .placeholder svg { width: 56px; height: 56px; fill: none; stroke: var(--persimmon); stroke-width: 1.8; }
 .placeholder b { color: var(--fg); font-size: 18px; }
 
+/* ---------- 지도 화면 ---------- */
+.page.map-page {
+  position: fixed; left: 0; right: 0; padding: 0;
+  top: calc(64px + env(safe-area-inset-top, 0px));
+  bottom: calc(var(--tab-height) + env(safe-area-inset-bottom, 0px));
+}
+/* 네이버 지도가 이 상자의 position 을 직접 바꾸므로, 크기를 width/height 로 지정합니다 */
+#map-canvas { width: 100%; height: 100%; }
+.map-notice {
+  position: absolute; z-index: 2; top: 8px; left: 12px; right: 12px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 14px; font-size: 14px; line-height: 1.5;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .15);
+}
+.locate-btn {
+  position: absolute; z-index: 2; right: 14px; bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+  min-height: 52px; padding: 0 20px; border: 0; border-radius: 26px;
+  background: var(--green); color: #fff; font: inherit; font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+}
+.locate-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.map-error { position: absolute; inset: 0; z-index: 3; background: var(--bg); padding: 0 24px; }
+.map-error[hidden] { display: none; }
+.btn {
+  min-height: 52px; padding: 0 28px; border: 0; border-radius: 14px;
+  background: var(--green); color: #fff; font: inherit; font-weight: 700;
+}
+.me-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #2F7DE1; border: 3px solid #fff;
+  box-shadow: 0 0 0 8px rgba(47, 125, 225, .25);
+}
+
 .menu-list { list-style: none; padding: 0; margin: 0; }
 .menu-list li {
   background: var(--card); border: 1px solid var(--line); border-radius: 14px;

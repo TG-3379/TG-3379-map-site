@@ -61,6 +61,7 @@ function showPage() {
     else t.removeAttribute('aria-current');
   });
   window.scrollTo(0, 0);
+  if (current === 'map' && window.onMapShown) window.onMapShown();
 }
 
 renderHome();
