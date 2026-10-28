@@ -103,7 +103,57 @@ async function search(q) {
   return out;
 }
 
-// 상세: 관광공사 장소 번호(id)로 조회
+// 관광공사 글에 섞여 있는 HTML(<br> 등)을 보통 글자로 바꿉니다.
+function plain(html) {
+  return String(html || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+// 홈페이지 칸에는 <a href="..."> 형태로 들어 있어서 주소만 꺼냅니다. http(s)만 허용합니다.
+function homepageUrl(html) {
+  const m = /href=["']([^"']+)["']/i.exec(String(html || ''));
+  return m && /^https?:\/\//i.test(m[1]) ? m[1] : null;
+}
+
+// 02-123-4567, 031-123-4567, 1588-1234 모양의 전화번호 중 첫 번째
+function firstPhone(text) {
+  const m = /0\d{1,2}-\d{3,4}-\d{4}|1\d{3}-\d{4}/.exec(String(text || ''));
+  return m ? m[0] : null;
+}
+
+function fmtDate(d) {
+  return d ? `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6)}` : '';
+}
+
+// 종류별로 상세 화면에 보여줄 줄(이름: 내용)을 만듭니다. 비어 있는 줄은 뺍니다.
+function infoRows(type, i) {
+  let rows;
+  if (type === 'food') {
+    rows = [['영업시간', i.opentimefood], ['쉬는 날', i.restdatefood], ['대표 메뉴', i.firstmenu],
+      ['주차', i.parkingfood], ['문의', i.infocenterfood]];
+  } else if (type === 'festival') {
+    const period = i.eventstartdate ? `${fmtDate(i.eventstartdate)} ~ ${fmtDate(i.eventenddate)}` : '';
+    rows = [['기간', period], ['시간', i.playtime], ['장소', i.eventplace],
+      ['요금', i.usetimefestival], ['문의', i.sponsor1tel]];
+  } else {
+    rows = [['이용시간', i.usetime], ['쉬는 날', i.restdate], ['주차', i.parking], ['문의', i.infocenter]];
+  }
+  return rows.map(([label, v]) => ({ label, value: plain(v) })).filter((r) => r.value);
+}
+
+const PHOTO_LICENSE = { Type1: '공공누리 제1유형', Type3: '공공누리 제3유형' };
+
+// 상세: 관광공사 장소 번호(id)로 조회 (기본 정보 + 영업시간 등 소개 정보)
 async function detail(q) {
   const id = String(q.id || '');
   if (!/^\d{1,12}$/.test(id)) throw fail('BAD_REQUEST', 400);
@@ -115,12 +165,33 @@ async function detail(q) {
   const rows = await tour.call('detailCommon2', { contentId: id });
   if (!rows.length) throw fail('NOT_FOUND', 404);
   const it = rows[0];
+  const base = tour.normalize(it);
+
+  // 소개 정보(영업시간 등)가 실패해도 기본 정보는 보여줍니다. 단, 호출 한도 오류는 그대로 알립니다.
+  let intro = {};
+  let introOk = true;
+  try {
+    const r = await tour.call('detailIntro2', { contentId: id, contentTypeId: String(it.contenttypeid) });
+    intro = r[0] || {};
+  } catch (e) {
+    if (e.code === 'LIMIT') throw e;
+    introOk = false;
+  }
+
+  const info = infoRows(base.type, intro);
+  // 전화 칸에 글자가 섞여 있어도 첫 번째 전화번호만 꺼냅니다. 비어 있으면 "문의" 줄에서 찾아봅니다.
+  const contact = (info.find((r) => r.label === '문의') || {}).value || '';
+  const phone = firstPhone(base.phone) || firstPhone(contact);
+
   const out = {
-    ...tour.normalize(it),
-    homepage: it.homepage || null,
-    overview: it.overview || null,
+    ...base,
+    phone,
+    homepage: homepageUrl(it.homepage),
+    overview: plain(it.overview) || null,
+    info,
+    photoLicense: PHOTO_LICENSE[it.cpyrhtDivCd] || null,
   };
-  cache.set(key, out, 6 * 60 * MIN);
+  cache.set(key, out, (introOk ? 6 * 60 : 10) * MIN);
   return out;
 }
 

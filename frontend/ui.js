@@ -66,9 +66,20 @@ function statusBox(title, message, retryKey) {
 // 사진 주소가 깨졌을 때도 빈 칸이 아니라 색 상자가 보이게 합니다.
 document.addEventListener('error', (e) => {
   const img = e.target;
-  if (img && img.tagName === 'IMG' && img.classList.contains('thumb')) {
-    const box = document.createElement('div');
-    box.className = 'thumb ph-spot';
-    img.replaceWith(box);
-  }
+  if (!img || img.tagName !== 'IMG') return;
+  const kind = img.classList.contains('hero-img') ? 'hero-img' : img.classList.contains('thumb') ? 'thumb' : '';
+  if (!kind) return;
+  const box = document.createElement('div');
+  box.className = `${kind} ph-spot`;
+  img.replaceWith(box);
 }, true);
+
+// 화면 아래에 잠깐 떴다 사라지는 안내 문구
+let toastTimer = null;
+function toast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.hidden = true; }, 2800);
+}

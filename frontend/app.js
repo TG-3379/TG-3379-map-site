@@ -1,20 +1,9 @@
-// ---------- 즐겨찾기 (8단계 전까지는 가짜 예시) ----------
-const SAMPLE_FAVORITES = [
-  { name: '한옥마을 비빔밥집', sub: '전주 · 예시', thumb: 't1', tag: '맛집', tagClass: 'food' },
-  { name: '남부시장 피순대', sub: '전주 · 예시', thumb: 't4', tag: '맛집', tagClass: 'food' },
-  { name: '경기전', sub: '전주 · 예시', thumb: 't2', tag: '관광지', tagClass: '' },
-];
-
+// ---------- 즐겨찾기: 장소 상세에서 "저장"한 장소 목록 ----------
 function renderFavorites() {
-  document.getElementById('favorites-list').innerHTML = SAMPLE_FAVORITES.map((i) => `
-    <div class="place">
-      <div class="thumb ${i.thumb}"></div>
-      <div class="info">
-        <span class="tag ${i.tagClass}">${i.tag}</span>
-        <b>${i.name}</b>
-        <small>${i.sub}</small>
-      </div>
-    </div>`).join('');
+  const items = Favorites.list();
+  document.getElementById('favorites-list').innerHTML = items.length
+    ? items.map(placeCard).join('')
+    : statusBox('저장한 장소가 없어요', '장소 상세 화면에서 "저장" 버튼을 누르면 여기에 모여요.');
 }
 
 // ---------- 홈: 내 주변 실제 장소 ----------
@@ -70,16 +59,6 @@ $homeCards.addEventListener('click', (e) => {
   }
 });
 
-// ---------- 장소 상세 (임시: 6단계에서 완성) ----------
-function renderPlaceStub(p) {
-  document.getElementById('place-body').innerHTML = `
-    <span class="tag ${p.type === 'spot' ? '' : p.type === 'food' ? 'food' : 'fest'}">${TYPE_LABEL[p.type] || ''}</span>
-    <h1 class="greeting">${esc(p.name)}</h1>
-    <p>${esc(p.address)}</p>
-    <p class="hint">${fmtDistance(p.distance) ? `기준 위치에서 ${fmtDistance(p.distance)}` : ''}</p>
-    <div class="notice-line">자세한 정보(사진, 전화, 길찾기)는 6단계에서 이 화면에 들어옵니다.</div>`;
-}
-
 document.getElementById('place-back').addEventListener('click', () => {
   if (history.length > 1) history.back();
   else location.hash = '#home';
@@ -92,16 +71,10 @@ function showPage() {
   const hash = decodeURIComponent(location.hash.slice(1));
   let current = PAGES.includes(hash) ? hash : 'home';
 
+  // #place/번호 : 공유받은 링크로 바로 열어도 서버에서 장소 정보를 불러옵니다.
   if (hash.startsWith('place/')) {
-    const place = PlaceStore.get(hash.slice(6));
-    if (place) {
-      current = 'place';
-      renderPlaceStub(place);
-    } else {
-      // 새로고침 등으로 장소 정보가 사라졌으면 홈으로 돌아갑니다.
-      location.replace('#home');
-      return;
-    }
+    current = 'place';
+    Detail.show(hash.slice(6));
   }
 
   PAGES.forEach((p) => {
@@ -114,10 +87,10 @@ function showPage() {
     else t.removeAttribute('aria-current');
   });
   window.scrollTo(0, 0);
+  if (current === 'favorites') renderFavorites();
   if (current === 'map' && window.onMapShown) window.onMapShown();
 }
 
-renderFavorites();
 loadHome();
 window.addEventListener('hashchange', showPage);
 showPage();

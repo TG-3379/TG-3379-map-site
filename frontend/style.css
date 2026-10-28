@@ -193,7 +193,47 @@ a.place { color: inherit; text-decoration: none; }
 .pin-spot { background: var(--green); }
 .pin-festival { background: #4E7FA3; }
 
-/* ---------- 장소 상세(임시) ---------- */
+/* ---------- 장소 상세 ---------- */
+.hero-img {
+  display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover;
+  border-radius: 16px; margin-bottom: 12px; background: var(--green-soft);
+}
+.hero-img.ph-food { background: linear-gradient(135deg, #E8743B, #F2B26B); }
+.hero-img.ph-spot { background: linear-gradient(135deg, #1F5C4D, #6FA98F); }
+.hero-img.ph-festival { background: linear-gradient(135deg, #4E7FA3, #9CC4D8); }
+
+.actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+.act {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 68px; padding: 8px 0; border: 0; border-radius: 16px; text-decoration: none;
+  background: var(--green-soft); color: var(--green); font: inherit; font-size: 14px; font-weight: 700;
+}
+.act svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.act.main { background: var(--green); color: #fff; }
+.act.on { background: var(--persimmon); color: #fff; }
+.act.on svg { fill: currentColor; }
+.act:disabled { opacity: .45; }
+.act:focus-visible, .btn:focus-visible { outline: 3px solid var(--persimmon); outline-offset: 2px; }
+
+.route-panel { display: grid; gap: 8px; margin-bottom: 12px; }
+.route-panel[hidden] { display: none; }
+.btn.kakao { background: #FEE500; color: #191919; }
+
+.rows { margin: 0 0 8px; }
+.rows > div { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.rows dt { flex: none; width: 76px; color: var(--muted); font-size: 14px; }
+.rows dd { flex: 1; min-width: 0; margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.rows a { color: var(--green); font-weight: 700; }
+.sub-title { font-size: 18px; margin: 18px 0 6px; }
+.overview { margin: 0; white-space: pre-line; line-height: 1.7; }
+
+.toast {
+  position: fixed; z-index: 20; left: 16px; right: 16px;
+  bottom: calc(var(--tab-height) + env(safe-area-inset-bottom, 0px) + 16px);
+  padding: 14px 16px; border-radius: 14px; text-align: center; font-size: 15px;
+  background: #16302A; color: #fff; box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
+}
+.toast[hidden] { display: none; }
 .back-btn {
   min-height: 48px; padding: 0 8px; border: 0; background: none;
   color: var(--green); font: inherit; font-weight: 700; font-size: 16px;
