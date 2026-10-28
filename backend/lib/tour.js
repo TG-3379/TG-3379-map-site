@@ -26,6 +26,8 @@ async function call(operation, params) {
   const header = json && json.response && json.response.header;
   if (!header || header.resultCode !== '0000') {
     if (header && /LIMIT|EXCEED/i.test(String(header.resultMsg))) throw fail('LIMIT', 429);
+    // 원인을 알 수 있게 서버 화면에만 남깁니다. (키나 위치는 남기지 않습니다)
+    console.error('관광공사 응답 이상:', operation, header ? `${header.resultCode} ${header.resultMsg}` : '헤더 없음');
     throw fail('UPSTREAM', 502);
   }
   const items = json.response.body.items;

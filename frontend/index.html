@@ -20,6 +20,7 @@
     <!-- 홈 -->
     <section id="home" class="page" aria-label="홈">
       <h1 class="greeting">오늘은 어디로 떠날까요?</h1>
+      <p id="home-notice" class="notice-line" role="status" hidden></p>
 
       <div class="weather" id="weather-card">
         <b>--°</b>
@@ -27,16 +28,31 @@
       </div>
 
       <div id="home-cards"></div>
+      <p class="credit">정보 출처: 한국관광공사</p>
     </section>
 
     <!-- 지도 -->
     <section id="map" class="page map-page" aria-label="지도" hidden>
       <div id="map-canvas"></div>
+
+      <div class="map-chips" role="group" aria-label="장소 종류">
+        <button class="chip on" type="button" data-type="food">맛집</button>
+        <button class="chip" type="button" data-type="spot">관광지</button>
+        <button class="chip" type="button" data-type="festival">축제</button>
+      </div>
       <div id="map-notice" class="map-notice" role="status" hidden></div>
-      <button id="locate-btn" class="locate-btn" type="button">
+
+      <button id="search-here" class="map-btn search-here" type="button" hidden>이 지역에서 다시 찾기</button>
+      <button id="locate-btn" class="map-btn locate-btn" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
         현재 위치로 이동
       </button>
+
+      <div class="sheet">
+        <div class="sheet-head"><span id="sheet-title">주변 장소</span><span id="sheet-count"></span></div>
+        <div id="sheet-body" class="sheet-body"></div>
+      </div>
+
       <div id="map-error" class="placeholder map-error" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
         <b>지도를 표시할 수 없어요</b>
@@ -58,8 +74,14 @@
       <ul class="menu-list">
         <li>위치 사용 안내</li>
         <li>데이터 출처 (한국관광공사 · 네이버 · 기상청)</li>
-        <li>앱 정보 (버전 0.1 · 화면 틀)</li>
+        <li>앱 정보 (버전 0.1)</li>
       </ul>
+    </section>
+
+    <!-- 장소 상세 (6단계에서 채웁니다. 지금은 임시 화면) -->
+    <section id="place" class="page" aria-label="장소 상세" hidden>
+      <button id="place-back" class="back-btn" type="button">← 뒤로</button>
+      <div id="place-body"></div>
     </section>
   </main>
 
@@ -80,6 +102,9 @@
   </nav>
 
   <script src="config.js"></script>
+  <script src="location.js"></script>
+  <script src="api.js"></script>
+  <script src="ui.js"></script>
   <script src="map.js"></script>
   <script src="app.js"></script>
 </body>

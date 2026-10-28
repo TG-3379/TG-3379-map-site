@@ -1,70 +1,123 @@
-// 가짜 예시 데이터입니다. (실제 데이터는 5단계에서 연결합니다)
-const SAMPLE = {
-  food: [
-    { name: '한옥마을 비빔밥집', sub: '도보 6분 · 한식', thumb: 't1' },
-    { name: '남부시장 피순대', sub: '도보 15분 · 분식', thumb: 't4' },
-  ],
-  spot: [
-    { name: '경기전', sub: '도보 9분 · 입장료 있음', thumb: 't2' },
-    { name: '오목대', sub: '도보 12분 · 무료', thumb: 't3' },
-  ],
-  festival: [
-    { name: '전주 한지 문화축제', sub: '이번 주 · 전주시', thumb: 't3' },
-  ],
-};
-
-const HOME_SECTIONS = [
-  { title: '내 주변 맛집', note: '1km 이내', tag: '맛집', tagClass: 'food', items: SAMPLE.food },
-  { title: '내 주변 명소', note: '1km 이내', tag: '관광지', tagClass: '', items: SAMPLE.spot },
-  { title: '이번 주 축제', note: '예시', tag: '축제', tagClass: 'food', items: SAMPLE.festival },
+// ---------- 즐겨찾기 (8단계 전까지는 가짜 예시) ----------
+const SAMPLE_FAVORITES = [
+  { name: '한옥마을 비빔밥집', sub: '전주 · 예시', thumb: 't1', tag: '맛집', tagClass: 'food' },
+  { name: '남부시장 피순대', sub: '전주 · 예시', thumb: 't4', tag: '맛집', tagClass: 'food' },
+  { name: '경기전', sub: '전주 · 예시', thumb: 't2', tag: '관광지', tagClass: '' },
 ];
 
-function placeCard(item, tag, tagClass) {
-  return `
-    <div class="place" tabindex="0">
-      <div class="thumb ${item.thumb}"></div>
-      <div class="info">
-        <span class="tag ${tagClass}">${tag}</span>
-        <b>${item.name}</b>
-        <small>${item.sub}</small>
-      </div>
-    </div>`;
-}
-
-function renderHome() {
-  document.getElementById('home-cards').innerHTML = HOME_SECTIONS.map(s => `
-    <div class="section-head"><h2>${s.title}</h2><span>${s.note}</span></div>
-    ${s.items.map(i => placeCard(i, s.tag, s.tagClass)).join('')}
-  `).join('');
-}
-
 function renderFavorites() {
-  const all = [
-    ...SAMPLE.food.map(i => placeCard(i, '맛집', 'food')),
-    ...SAMPLE.spot.map(i => placeCard(i, '관광지', '')),
-  ];
-  document.getElementById('favorites-list').innerHTML = all.join('');
+  document.getElementById('favorites-list').innerHTML = SAMPLE_FAVORITES.map((i) => `
+    <div class="place">
+      <div class="thumb ${i.thumb}"></div>
+      <div class="info">
+        <span class="tag ${i.tagClass}">${i.tag}</span>
+        <b>${i.name}</b>
+        <small>${i.sub}</small>
+      </div>
+    </div>`).join('');
 }
 
-// 하단 메뉴: 주소 끝의 #home, #map ... 에 맞춰 화면을 바꿉니다.
-const PAGES = ['home', 'map', 'favorites', 'me'];
+// ---------- 홈: 내 주변 실제 장소 ----------
+const HOME_SECTIONS = [
+  { type: 'food', title: '내 주변 맛집', note: '2km 이내' },
+  { type: 'spot', title: '내 주변 명소', note: '2km 이내' },
+  { type: 'festival', title: '이번 주 축제', note: '전국 · 가까운 순' },
+];
+const HOME_COUNT = 3; // 홈에서는 종류마다 3곳만 보여줍니다.
+
+const $homeCards = document.getElementById('home-cards');
+const $homeNotice = document.getElementById('home-notice');
+
+function renderHomeShell() {
+  $homeCards.innerHTML = HOME_SECTIONS.map((s) => `
+    <div class="section-head">
+      <h2>${s.title} <small>${s.note}</small></h2>
+      <button class="more" type="button" data-more="${s.type}">지도에서 보기</button>
+    </div>
+    <div id="home-${s.type}">${loadingHtml()}</div>`).join('');
+}
+
+async function loadHomeSection(type) {
+  const box = document.getElementById(`home-${type}`);
+  box.innerHTML = loadingHtml();
+  const pos = await Loc.get();
+  const result = await Api.nearby(pos, type);
+  if (!result.ok) {
+    box.innerHTML = statusBox('불러오지 못했어요', result.message, type);
+  } else if (!result.items.length) {
+    box.innerHTML = statusBox('가까운 곳에 정보가 없어요', '지도에서 다른 지역을 찾아보세요.');
+  } else {
+    box.innerHTML = result.items.slice(0, HOME_COUNT).map(placeCard).join('');
+  }
+}
+
+async function loadHome() {
+  renderHomeShell();
+  const pos = await Loc.get();
+  const text = Loc.notice(pos);
+  $homeNotice.textContent = text;
+  $homeNotice.hidden = !text;
+  HOME_SECTIONS.forEach((s) => loadHomeSection(s.type));
+}
+
+$homeCards.addEventListener('click', (e) => {
+  const retry = e.target.closest('[data-retry]');
+  if (retry) return loadHomeSection(retry.dataset.retry);
+  const more = e.target.closest('[data-more]');
+  if (more) {
+    window.setMapType(more.dataset.more);
+    location.hash = '#map';
+  }
+});
+
+// ---------- 장소 상세 (임시: 6단계에서 완성) ----------
+function renderPlaceStub(p) {
+  document.getElementById('place-body').innerHTML = `
+    <span class="tag ${p.type === 'spot' ? '' : p.type === 'food' ? 'food' : 'fest'}">${TYPE_LABEL[p.type] || ''}</span>
+    <h1 class="greeting">${esc(p.name)}</h1>
+    <p>${esc(p.address)}</p>
+    <p class="hint">${fmtDistance(p.distance) ? `기준 위치에서 ${fmtDistance(p.distance)}` : ''}</p>
+    <div class="notice-line">자세한 정보(사진, 전화, 길찾기)는 6단계에서 이 화면에 들어옵니다.</div>`;
+}
+
+document.getElementById('place-back').addEventListener('click', () => {
+  if (history.length > 1) history.back();
+  else location.hash = '#home';
+});
+
+// ---------- 화면 전환: 주소 끝의 #home, #map, #place/번호 에 맞춰 바꿉니다 ----------
+const PAGES = ['home', 'map', 'favorites', 'me', 'place'];
 
 function showPage() {
-  const name = location.hash.slice(1);
-  const current = PAGES.includes(name) ? name : 'home';
-  PAGES.forEach(p => {
+  const hash = decodeURIComponent(location.hash.slice(1));
+  let current = PAGES.includes(hash) ? hash : 'home';
+
+  if (hash.startsWith('place/')) {
+    const place = PlaceStore.get(hash.slice(6));
+    if (place) {
+      current = 'place';
+      renderPlaceStub(place);
+    } else {
+      // 새로고침 등으로 장소 정보가 사라졌으면 홈으로 돌아갑니다.
+      location.replace('#home');
+      return;
+    }
+  }
+
+  PAGES.forEach((p) => {
     document.getElementById(p).hidden = p !== current;
   });
-  document.querySelectorAll('.tab').forEach(t => {
-    t.classList.toggle('on', t.dataset.page === current);
-    if (t.dataset.page === current) t.setAttribute('aria-current', 'page');
+  document.querySelectorAll('.tab').forEach((t) => {
+    const on = t.dataset.page === current;
+    t.classList.toggle('on', on);
+    if (on) t.setAttribute('aria-current', 'page');
     else t.removeAttribute('aria-current');
   });
   window.scrollTo(0, 0);
   if (current === 'map' && window.onMapShown) window.onMapShown();
 }
 
-renderHome();
 renderFavorites();
+loadHome();
 window.addEventListener('hashchange', showPage);
 showPage();
