@@ -1,0 +1,117 @@
+/* 색과 글자 크기는 여기서 한 번에 바꿀 수 있습니다 */
+:root {
+  --bg: #F6F8F7;
+  --fg: #16302A;
+  --muted: #5B6E68;
+  --card: #FFFFFF;
+  --line: #D5DEDB;
+  --green: #1F5C4D;
+  --green-soft: #DCEBE5;
+  --persimmon: #E8743B;
+  --tab-height: 64px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Noto Sans KR', 'Malgun Gothic', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  /* 상단 검색창과 하단 메뉴에 가려지지 않도록 여백 */
+  padding-top: calc(64px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--tab-height) + env(safe-area-inset-bottom, 0px) + 12px);
+}
+
+/* ---------- 상단 검색창 ---------- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px;
+  background: var(--bg);
+}
+.search {
+  display: flex; align-items: center; gap: 10px;
+  height: 48px; padding: 0 14px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  color: var(--muted);
+}
+.search svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.search input {
+  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+  font: inherit; color: var(--fg);
+}
+.search:focus-within { border-color: var(--green); }
+
+/* ---------- 화면 공통 ---------- */
+.page { padding: 8px 16px; }
+.page[hidden] { display: none; }
+.greeting { font-size: 22px; font-weight: 900; margin: 8px 0 12px; }
+.hint { color: var(--muted); font-size: 14px; }
+
+.weather {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--green); color: #fff;
+  border-radius: 16px; padding: 14px 16px; margin-bottom: 16px;
+}
+.weather b { font-size: 28px; }
+.weather span { font-size: 14px; opacity: .9; }
+
+/* ---------- 홈 카드 묶음 ---------- */
+.section-head { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 8px; }
+.section-head h2 { font-size: 18px; margin: 0; }
+.section-head span { color: var(--muted); font-size: 14px; }
+
+.place {
+  display: flex; gap: 12px; align-items: center;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 16px; padding: 10px; margin-bottom: 10px;
+  min-height: 64px;
+}
+.thumb { width: 72px; height: 72px; border-radius: 12px; flex: none; }
+.thumb.t1 { background: linear-gradient(135deg, #E8743B, #F2B26B); }
+.thumb.t2 { background: linear-gradient(135deg, #1F5C4D, #6FA98F); }
+.thumb.t3 { background: linear-gradient(135deg, #4E7FA3, #9CC4D8); }
+.thumb.t4 { background: linear-gradient(135deg, #B8574A, #E3A08F); }
+.place .info { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.place b { font-size: 16px; }
+.place small { color: var(--muted); font-size: 14px; }
+.tag {
+  align-self: flex-start; font-size: 12px; font-weight: 700;
+  padding: 2px 8px; border-radius: 99px;
+  background: var(--green-soft); color: var(--green);
+}
+.tag.food { background: #FBE3D6; color: #B2511F; }
+
+/* ---------- 지도·내 정보 자리 ---------- */
+.placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 8px; min-height: 60vh; color: var(--muted);
+}
+.placeholder svg { width: 56px; height: 56px; fill: none; stroke: var(--persimmon); stroke-width: 1.8; }
+.placeholder b { color: var(--fg); font-size: 18px; }
+
+.menu-list { list-style: none; padding: 0; margin: 0; }
+.menu-list li {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px; margin-bottom: 10px; min-height: 56px;
+}
+
+/* ---------- 하단 메뉴 ---------- */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  height: calc(var(--tab-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--card); border-top: 1px solid var(--line);
+}
+.tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500;
+}
+.tab svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.tab.on { color: var(--green); font-weight: 700; }
+.tab.on svg { fill: var(--green-soft); }
+.tab:focus-visible, .place:focus-visible { outline: 3px solid var(--persimmon); outline-offset: -3px; }

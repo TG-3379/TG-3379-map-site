@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1F5C4D">
+  <title>맛집·명소 안내</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 상단 검색창 (모든 화면 공통) -->
+  <header class="topbar">
+    <label class="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="search-input" type="search" placeholder="맛집, 명소, 축제 검색" autocomplete="off">
+    </label>
+  </header>
+
+  <main>
+    <!-- 홈 -->
+    <section id="home" class="page" aria-label="홈">
+      <h1 class="greeting">오늘은 어디로 떠날까요?</h1>
+
+      <div class="weather" id="weather-card">
+        <b>--°</b>
+        <span>날씨 정보 자리<br>(나중에 기상청 정보가 들어옵니다)</span>
+      </div>
+
+      <div id="home-cards"></div>
+    </section>
+
+    <!-- 지도 -->
+    <section id="map" class="page" aria-label="지도" hidden>
+      <div class="placeholder">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <b>지도 화면</b>
+        <p>3단계에서 네이버 지도가 여기에 나타납니다.</p>
+      </div>
+    </section>
+
+    <!-- 즐겨찾기 -->
+    <section id="favorites" class="page" aria-label="즐겨찾기" hidden>
+      <h1 class="greeting">즐겨찾기</h1>
+      <div id="favorites-list"></div>
+      <p class="hint">지금은 예시입니다. 8단계에서 저장 기능이 연결됩니다.</p>
+    </section>
+
+    <!-- 내 정보 -->
+    <section id="me" class="page" aria-label="내 정보" hidden>
+      <h1 class="greeting">내 정보</h1>
+      <ul class="menu-list">
+        <li>위치 사용 안내</li>
+        <li>데이터 출처 (한국관광공사 · 네이버 · 기상청)</li>
+        <li>앱 정보 (버전 0.1 · 화면 틀)</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- 하단 메뉴 -->
+  <nav class="tabbar" aria-label="하단 메뉴">
+    <a href="#home" class="tab" data-page="home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9h-6v-6H9v6H3z"/></svg>홈
+    </a>
+    <a href="#map" class="tab" data-page="map">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>지도
+    </a>
+    <a href="#favorites" class="tab" data-page="favorites">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-8-5-8-11a4.5 4.5 0 018-2.7A4.5 4.5 0 0120 9c0 6-8 11-8 11z"/></svg>즐겨찾기
+    </a>
+    <a href="#me" class="tab" data-page="me">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>내 정보
+    </a>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
